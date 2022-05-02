@@ -55,25 +55,62 @@ class CalcController {
     
     }
 
+    pushOperator(value){
+
+        this._operation.push(value);
+
+        if( this._operation.length > 3){
+
+            this.calc();
+        }
+    }
+
+    calc(){
+
+        let last = this._operation.pop();
+
+        let result = eval(this._operation.join(""));
+        this._operation = [result, last];
+    }
+
+    setLastNumberToDisplay(){
+
+        
+    }
+
     addOperation(value){
+
+        console.log('A',value,  isNaN(this.getLastOperation()));
 
         if(isNaN(this.getLastOperation())){
             
-            if(this.isOperator()){
+            if(this.isOperator(value)){
                 
-                this.setLastOperation(parseInt(value));
+                this.setLastOperation(value);
             }
             else if(isNaN(value)){
-                console.log(value);
+
+                console.log(value)
             }
             else {
-                console.log(value)
-                this._operation.push(value);
+                this.pushOperator(value)
             }
         }
         else {
-            let newVal = this.getLastOperation().toString() + value.toString();
-            this.setLastOperation(parseInt(newVal));
+
+            if(this.isOperator(value)){
+
+                this.pushOperator(value)
+            }
+            else {
+
+                let newVal = this.getLastOperation().toString() + value.toString();
+                this.setLastOperation(parseInt(newVal));
+
+                this.setLastNumberToDisplay();
+            }
+
+            
         }
 
         console.log(this._operation);
@@ -151,7 +188,7 @@ class CalcController {
 
                 let textBtn = btn.className.baseVal.replace("btn-", "");
                 this.execBtn(textBtn);
-                
+
             });
 
             this.addEventListenerAll(btn, "mouseover mouseup mousedown", e =>{
