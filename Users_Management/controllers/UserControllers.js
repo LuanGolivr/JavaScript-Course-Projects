@@ -50,7 +50,7 @@ class UserControllers {
                     <td>${Utils.dateFormart(result._register)}</td>
                     <td>
                     <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                    <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                    <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
                     </td>
                 `;
 
@@ -59,9 +59,9 @@ class UserControllers {
                 this.updateCount();
 
                 this.formUpdateEl.reset();
-                
-                btn.disabled = false;
                 this.showPanelCreate();
+                btn.disabled = false;
+                
 
             }, (e)=>{
                 console.error(e);
@@ -72,16 +72,23 @@ class UserControllers {
 
     addEventsTr(tr){
 
+        tr.querySelector(".btn-delete").addEventListener("click", e=>{
+
+            if(confirm("Deseja realmente excluir ?")){
+                tr.remove();
+                this.updateCount();
+            }
+        });
+
         tr.querySelector(".btn-edit").addEventListener("click", e=>{
 
             let json = JSON.parse(tr.dataset.user);
-            let form = document.querySelector("#form-user-update");
 
-            form.dataset.trIndex = tr.sectionRowIndex;
+            this.formUpdateEl.dataset.trIndex = tr.sectionRowIndex;
 
             for(let name in json){
 
-                let field = form.querySelector("[name ="+ name.replace("_", "") + "]");
+                let field = this.formUpdateEl.querySelector("[name ="+ name.replace("_", "") + "]");
 
                 if(field){
                     switch(field.type){
@@ -91,7 +98,7 @@ class UserControllers {
                             break;
                         
                         case 'radio':
-                            field = form.querySelector("[name ="+ name.replace("_", "") + "][value="+ json[name] +"]");
+                            field = this.formUpdateEl.querySelector("[name ="+ name.replace("_", "") + "][value="+ json[name] +"]");
                             field.checked = true;
                             break;
                         
@@ -101,11 +108,14 @@ class UserControllers {
                         
                         default:
                             field.value = json[name];
-                    }     
+                    }
+                    
+                    field.value = json[name];
                 }
                 
             }
 
+            this.formUpdateEl.querySelector(".photo").src = json._photo
             this.showPanelUpdate();
         });
     }
@@ -236,43 +246,8 @@ class UserControllers {
             </td>
         `;
 
-        tr.querySelector(".btn-edit").addEventListener("click", e=>{
-
-            let json = JSON.parse(tr.dataset.user);
-
-            form.dataset.trIndex = tr.sectionRowIndex;
-
-            for(let name in json){
-
-                let field = this.formUpdateEl.querySelector("[name ="+ name.replace("_", "") + "]");
-
-                if(field){
-                    switch(field.type){
-
-                        case 'file':
-                            continue;
-                            break;
-                        
-                        case 'radio':
-                            field = this.formUpdateEl.querySelector("[name ="+ name.replace("_", "") + "][value="+ json[name] +"]");
-                            field.checked = true;
-                            break;
-                        
-                        case 'checkbox':
-                            field.checked = json[name];
-                            break;
-                        
-                        default:
-                            field.value = json[name];
-                    }     
-                }
-                
-            }
-
-            this.formUpdateEl.querySelector(".photo").src = json._photo;
-            this.showPanelUpdate();
-        });
-
+        this.addEventsTr(tr);
+        
         this.tableEl.appendChild(tr);
 
         this.updateCount();
